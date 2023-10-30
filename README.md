@@ -1,9 +1,14 @@
 # 圆弧
 
 + 安装 npm i
-+ 运行 npm run start 启动 开发服务器
-    - http://localhost:1234 查看，支持 热更；
-+ 如 出错，将 font/*.ttf 拷贝到 dist/font/*.ttf
++ 运行 npm run start
++ 将 font/*.ttf 拷贝到 dist/font/*.ttf
++ Chrome 打开 http://localhost:1234 查看，支持 热更；
+
+注：运行过程，如遇到问题，注意 node & npm 版本，这里是成功运行的版本，仅供参考：
+
++ node版本 18.17.0
++ npm 版本 9.6.7
 
 ## 1. Arc 类
 
