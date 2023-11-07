@@ -285,7 +285,9 @@ export class Action {
         }
     }
     static outlineSoftness(v: number) {
-
+        if (window.material) {
+            window.material.weightAndOffset[3] = v;
+        }
     }
     static weightNormal(v: number) {
 
@@ -335,7 +337,7 @@ DataPanel.init([
     // [`faceColor.b`, 1.0, Action.faceColorB, 0.0, 1.0],
 
     [`outlineWidth`, 0.0, Action.outlineWidth, 0.0, 28.0],
-    // [`outlineSoftness`, 0, Action.outlineSoftness, 0, 1.0],
+    [`outlineSoftness`, 0, Action.outlineSoftness, 0, 1.0],
 
     // [`weightNormal`, 0, Action.weightNormal, -2, 2.0],
     [`weightBold`, 0.0, Action.weightBold, -2, 2],

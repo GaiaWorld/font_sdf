@@ -487,7 +487,7 @@ void main() {
 
 	// 每渲染像素对应Distance
 	// 1024. 是数据生成时用的计算范围
-	float distancePerPixel = abs(fwidth(lp.x)) * 1024. * 0.707;
+	float distancePerPixel = 1.;
 
 	float weight = u_weightAndOffset.x;
 	sdist = sdist - weight * distancePerPixel;
@@ -528,11 +528,13 @@ void main() {
     faceColor.rgb   = mix(faceColor.rgb, gradientColor, step(0.05, gradientLength));
 
 
+	float outlineSofeness 	= u_weightAndOffset.w;
 	float outlineWidth 		= u_outline.w * distancePerPixel;
 	vec4 outlineColor 		= vec4(u_outline.xyz, 1.);
 	float ed = (1.0 - smoothstep(0., outlineWidth, abs(sdist))) * step(-0.1, sdist); // * step(sdist, 0.);
 	float alphaED = min(ed, 1.0 - alpha) * step(0.001, ed);
-	vec4 finalColor = mix(faceColor, outlineColor, step(0.001, alphaED));
+	vec4 finalColor = mix(faceColor, outlineColor, smoothstep(0.0, outlineSofeness, alphaED));
+	// finalColor.a = antialias(finalColor.a);
 
 	// gl_FragColor = finalColor;
 
@@ -551,6 +553,7 @@ void main() {
 		vec4(0.),
 		top
 	);
+	// gl_FragColor = vec4(abs(fwidth(lp.x)) * 100., abs(fwidth(lp.y)) * 100., 0., 1.);
 
 	// 画 网格
 
