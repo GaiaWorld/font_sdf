@@ -15,12 +15,15 @@
     <br><br>
     
     <label for="char" style="position: relative; left:10%;">输入字符：</label>
-    <input type="text" id="char" value="魔" placeholder="输入字符" style="position: relative; left:10%;">
+    <input type="text" id="char" value="蟹" placeholder="输入字符" style="position: relative; left:10%;">
     <br><br>
     <label for="char_size" style="position: relative; left:10%;">像素大小：</label>
-    <input type="text" id="char_size" value="64" placeholder="像素大小" style="position: relative; left:10%;">
+    <input type="text" id="char_size" value="440" placeholder="像素大小" style="position: relative; left:10%;">
     <br><br>
-    <canvas id="sdf-canvas" width="512" height="512" style="position: absolute; left: 150px; width:512px;height:512px;"></canvas>
+    <label for="edge_size" style="position: relative; left:10%;">Edge大小：</label>
+    <input type="number" id="edge_size" value="28" placeholder="Edge大小" style="position: relative; left:10%;">
+    <br><br>
+    <canvas id="sdf-canvas" width="512" height="512" style="position: absolute; top: 0; right: 400px; width:512px;height:512px;"></canvas>
     <br><br>
     <div id="debug_canvas" style="display: none;">
         <form>

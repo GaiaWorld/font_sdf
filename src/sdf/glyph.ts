@@ -129,6 +129,10 @@ export class GlyphyMaterial extends Material {
 
     uWorld: mat4;
     uColor: [number, number, number, number];
+    uGradientStartEnd: [number, number, number, number];
+    // uGradientColors: mat4;
+    outline: [number, number, number, number];
+    weightAndOffset: [number, number, number, number];
 
     program: Program
 
@@ -149,6 +153,11 @@ export class GlyphyMaterial extends Material {
         this.index_texture = index;
 
         this.uColor = [1.0, 0.0, 0.0, 1.0];
+        
+        this.uGradientStartEnd = [1.0, 0.0, 0.0, 1.0];
+        // this.uGradientColors = mat4.create();
+        this.outline = [0., 0., 0., 0.];
+        this.weightAndOffset = [0., 0., 0., 0.];
 
         this.uWorld = mat4.create();
         mat4.identity(this.uWorld);
@@ -224,6 +233,25 @@ export class GlyphyMaterial extends Material {
         let uWorld = program.getUniform(gl, "uWorld");
         if (uWorld) {
             gl.uniformMatrix4fv(uWorld, false, this.uWorld);
+        }
+        
+        {
+            let loc = program.getUniform(gl, "u_gradientStarteEnd");
+            if (loc) {
+                gl.uniform4f(loc, ...this.uGradientStartEnd);
+            }
+        }
+        {
+            let loc = program.getUniform(gl, "u_outline");
+            if (loc) {
+                gl.uniform4f(loc, ...this.outline);
+            }
+        }
+        {
+            let loc = program.getUniform(gl, "u_weightAndOffset");
+            if (loc) {
+                gl.uniform4f(loc, ...this.weightAndOffset);
+            }
         }
     }
 }

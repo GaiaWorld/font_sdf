@@ -464,6 +464,13 @@ float antialias(float d) {
 	return clamp(r, 0.0, 1.0);
 }
 
+varying float control;
+varying vec2 lp;
+
+uniform vec4 u_gradientStarteEnd;
+uniform vec4 u_outline;
+uniform vec4 u_weightAndOffset;
+
 void main() {
 	vec2 p = v_glyph.xy;
 
@@ -478,9 +485,72 @@ void main() {
 
 	float sdist = gsdist * scale;
 
-	float alpha = antialias(sdist);
+	// 每渲染像素对应Distance
+	// 1024. 是数据生成时用的计算范围
+	float distancePerPixel = abs(fwidth(lp.x)) * 1024. * 0.707;
 
-	gl_FragColor = uColor * vec4(uColor.rgb, alpha * uColor.a);
+	float weight = u_weightAndOffset.x;
+	sdist = sdist - weight * distancePerPixel;
+
+	float alpha = antialias(sdist);
+	vec4 faceColor = vec4(uColor.rgb, alpha);
+
+	
+    // gradient
+    vec3 gradientColor1     = vec3(0.1, 0.8, 0.2);
+    float gradientAmount1   = 0.1;
+    
+    vec3 gradientColor2     = vec3(0.7, 0.5, 0.2);
+    float gradientAmount2   = 0.3;
+    
+    vec3 gradientColor3     = vec3(0.7, 0.0, 0.2);
+    float gradientAmount3   = 0.6;
+    
+    vec3 gradientColor4     = vec3(0.0, 0.0, 0.7);
+    float gradientAmount4   = 0.9;
+
+    vec2 gradientStart      = u_gradientStarteEnd.xy;
+    vec2 gradientEnd        = u_gradientStarteEnd.zw;
+    vec2 gradientDir        = gradientEnd - gradientStart; // 逻辑控制 两者不相等
+    vec2 gradientDirNor     = normalize(gradientDir);
+    float gradientLength    = length(gradientDir);
+
+	vec2 local				= lp;
+    vec2 gradientV          = local - gradientStart;
+    float gradient          = dot(gradientV, gradientDirNor) / gradientLength;
+
+    vec3 gradientColor      = gradientColor1 * step(gradient, gradientAmount1)
+                            + mix(gradientColor1, gradientColor2, (gradient - gradientAmount1) / (gradientAmount2 - gradientAmount1)) * (step(gradientAmount1, gradient) * step(gradient, gradientAmount2) )
+                            + mix(gradientColor2, gradientColor3, (gradient - gradientAmount2) / (gradientAmount3 - gradientAmount2)) * (step(gradientAmount2, gradient) * step(gradient, gradientAmount3) )
+                            + mix(gradientColor3, gradientColor4, (gradient - gradientAmount3) / (gradientAmount4 - gradientAmount3)) * (step(gradientAmount3, gradient) * step(gradient, gradientAmount4) )
+                            + gradientColor4 * step(gradientAmount4, gradient);
+							
+    faceColor.rgb   = mix(faceColor.rgb, gradientColor, step(0.05, gradientLength));
+
+
+	float outlineWidth 		= u_outline.w * distancePerPixel;
+	vec4 outlineColor 		= vec4(u_outline.xyz, 1.);
+	float ed = (1.0 - smoothstep(0., outlineWidth, abs(sdist))) * step(-0.1, sdist); // * step(sdist, 0.);
+	float alphaED = min(ed, 1.0 - alpha) * step(0.001, ed);
+	vec4 finalColor = mix(faceColor, outlineColor, step(0.001, alphaED));
+
+	// gl_FragColor = finalColor;
+
+	// gl_FragColor = vec4(sdist * 0.05 + 0.4);
+
+	float top = step(128., v_glyph.y);
+	float right = step(control, v_glyph.x);
+	
+	gl_FragColor = mix(
+		mix(
+			finalColor,
+			vec4(floor((sdist * 0.02 + 0.4) * 10.) / 10.),
+			// vec4(sdist * 0.05),
+			right
+		),
+		vec4(0.),
+		top
+	);
 
 	// 画 网格
 

@@ -84,7 +84,7 @@ export const closest_arcs_to_cell = (
 	let near_arcs: Arc[] = [];
 
 	// 最近的意思：某个半径的 圆内
-	let half_diagonal = c.sub_point(c0).len();
+	let half_diagonal = c.sub_point(c0).len() * 2.;
 
 	let added = half_diagonal;
 	// let added = min_dist + half_diagonal + synth_max;
@@ -328,6 +328,8 @@ export const glyphy_arc_list_encode_blob2 = (
 	let unit = Math.max(glyph_width, glyph_height);
 
 	// 字符 的 glyph 被分成 grid_w * grid_h 个 格子
+	// let grid_w = Math.floor(MAX_GRID_SIZE * 2); Math.min(MAX_GRID_SIZE, Math.ceil(glyph_width / grid_unit));
+	// let grid_h = Math.floor(MAX_GRID_SIZE * 2); Math.min(MAX_GRID_SIZE, Math.ceil(glyph_height / grid_unit));
 	let grid_w = Math.min(MAX_GRID_SIZE, Math.ceil(glyph_width / grid_unit));
 	let grid_h = Math.min(MAX_GRID_SIZE, Math.ceil(glyph_height / grid_unit));
 
@@ -413,13 +415,17 @@ export const glyphy_arc_list_encode_blob2 = (
 				let le = line_encode(line);
 
 				let line_data = new ArcEndpoint(0.0, 0.0, 0.0);
-				line_data.line_key = line_key;
-				line_data.line_encode = le;
+				line_data.p = c;
+				line_data.d = GLYPHY_MAX_D;
+				// line_data.line_key = line_key;
+				// line_data.line_encode = le;
 
 				unit_arc.data.push(line_data);
+				unit_arc.data.push(near_endpoints[0]);
+				unit_arc.data.push(near_endpoints[1]);
 
-				unit_arc.origin_data.push(start);
-				unit_arc.origin_data.push(end);
+				// unit_arc.origin_data.push(start);
+				// unit_arc.origin_data.push(end);
 
 				continue;
 			}
@@ -587,7 +593,7 @@ const encode_to_tex = (data: BlobArc, extents: AABB,
 
 		// unitform
 
-		cell_size,
+		cell_size: cell_size,
 
 		grid_w,
 		grid_h,

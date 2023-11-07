@@ -32,6 +32,7 @@ export class DrawText {
     ttf: string;
     char: string;
     char_size: number;
+    edge_size: number;
     font: Promise<opentype.Font> | null;
 
     last_arcs: BlobArc | null;
@@ -66,6 +67,7 @@ export class DrawText {
 
         this.char = "A";
         this.char_size = 256;
+        this.edge_size = 2;
 
         this.last_arcs = null;
 
@@ -134,6 +136,16 @@ export class DrawText {
             delete_glyph(this.char);
         }
         this.char_size = size;
+
+        if (!this.font) {
+            this.font = this.load()
+        }
+    }
+    set_edge_size(size: number) {
+        if (this.edge_size !== size) {
+            delete_glyph(this.char);
+        }
+        this.edge_size = size;
 
         if (!this.font) {
             this.font = this.load()
@@ -255,6 +267,7 @@ export class DrawText {
             let { svg_paths, svg_endpoints, arcs, endpoints } = get_char_arc(gi, font, this.char)
 
             let verties = add_glyph_vertices(gi);
+            debugger;
             console.log(`verties = `, verties);
 
             let tex_data = arcs.tex_data;
@@ -266,13 +279,15 @@ export class DrawText {
             if (!g) {
                 throw new Error(`g is null`);
             }
-
+            debugger;
             let scale = this.char_size * window.devicePixelRatio;
+            let edgescale = this.edge_size;
             let m = mat4.create();
             mat4.identity(m);
             mat4.translate(m, m, [25.0, 120.0, 0.0]);
-            mat4.scale(m, m, [scale, scale, 1.0]);
+            mat4.scale(m, m, [scale, scale, edgescale]);
             g.mesh?.material?.setWorldMatrix(m);
+            (<any>window).material = g.mesh?.material;
 
             this.last_arc_count = endpoints.length;
             this.last_bezier_count = svg_endpoints.length;

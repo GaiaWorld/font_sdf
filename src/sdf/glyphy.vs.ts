@@ -13,6 +13,8 @@ ProgramManager.getInstance().addShader("glyphy.vs", `
     attribute vec4 a_glyph_vertex;
 
     varying vec4 v_glyph;
+    varying float control;
+    varying vec2 lp;
 
     // "A" 中 的 v = (28.0, 32.0)
     vec4 glyph_vertex_transcode(vec2 v) 
@@ -37,7 +39,9 @@ ProgramManager.getInstance().addShader("glyphy.vs", `
 
     void main() {
         v_glyph = glyph_vertex_transcode(a_glyph_vertex.zw);
+        control = uWorld[2][2];
         
         gl_Position = uProj * uView * uWorld * vec4(a_glyph_vertex.xy, 0.0, 1.0);
+        lp = a_glyph_vertex.xy;
     }
 `);
