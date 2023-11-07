@@ -2,6 +2,7 @@ import { SdfContext } from "./sdf/draw_sdf";
 import { set_gl } from "./sdf/glyph";
 import { DrawText } from "./draw_text"
 import { DataPanel } from "common/data_panel";
+import { mat4 } from "gl-matrix";
 
 document.addEventListener('DOMContentLoaded', (_) => {
     if (document === null) {
@@ -64,7 +65,7 @@ document.addEventListener('DOMContentLoaded', (_) => {
         }
     }
 
-    let dt = new DrawText(fontContext, "hwxw.ttf");
+    let dt = new DrawText(fontContext, window.location.search.replace("?", "") || "hwxw.ttf");
 
     const afterDraw = () => {
         setTimeout(() => {
@@ -106,37 +107,21 @@ document.addEventListener('DOMContentLoaded', (_) => {
         return Number(inputValue);
     }
 
-    const charSizeElement = document.getElementById('char_size') as HTMLInputElement
-    const charSizeValue = charSizeElement ? charSizeElement.value : "64";
-    let size = convertInputToNumber(charSizeValue);
-    if (size > 0) {
-        dt.set_char_size(size);
-    }
-    charSizeElement.addEventListener('input', function (event) {
-        let target = event.target as HTMLInputElement;
-        let size = convertInputToNumber(target.value);
-        if (size > 0) {
-            dt.set_char_size(size);
-        }
-        dt.draw();
-        afterDraw();
-    });
-
-    const edgeSizeElement = document.getElementById('edge_size') as HTMLInputElement
-    const edgeSizeValue = edgeSizeElement ? edgeSizeElement.value : "2";
-    let edgesize = convertInputToNumber(edgeSizeValue);
-    if (edgesize > 0) {
-        dt.set_edge_size(edgesize);
-    }
-    edgeSizeElement.addEventListener('input', function (event) {
-        let target = event.target as HTMLInputElement;
-        let size = convertInputToNumber(target.value);
-        if (size > 0) {
-            dt.set_edge_size(size);
-        }
-        dt.draw();
-        afterDraw();
-    });
+    // const charSizeElement = document.getElementById('char_size') as HTMLInputElement
+    // const charSizeValue = charSizeElement ? charSizeElement.value : "64";
+    // let size = convertInputToNumber(charSizeValue);
+    // if (size > 0) {
+    //     dt.set_char_size(size);
+    // }
+    // charSizeElement.addEventListener('input', function (event) {
+    //     let target = event.target as HTMLInputElement;
+    //     let size = convertInputToNumber(target.value);
+    //     if (size > 0) {
+    //         dt.set_char_size(size);
+    //     }
+    //     dt.draw();
+    //     afterDraw();
+    // });
 
     const bezierRenderElement = document.getElementById('isBezierRender') as HTMLInputElement
     const isBezierRender = bezierRenderElement ? bezierRenderElement.checked : false;
@@ -256,7 +241,13 @@ document.addEventListener('DOMContentLoaded', (_) => {
 declare var window: any;
 export class Action {
     static fontSize(v: number) {
-        // if 
+        if (window.material) {
+            let m = mat4.create();
+            mat4.identity(m);
+            mat4.translate(m, m, [25.0, 120.0, 0.0]);
+            mat4.scale(m, m, [v, v, 1.]);
+            window.material?.setWorldMatrix(m);
+        }
     }
     static TexOffset(v: number) {
 
@@ -322,11 +313,16 @@ export class Action {
     }
     static gradientExtend(v: number) {
     }
+    static edgeControl(v: number) {
+        if (window.material) {
+            window.material.weightAndOffset[2] = v;
+        }
+    }
 }
 
 DataPanel.init([
     // [`是否规范规定罐蟹试卷`, 1.0, (v) => { v }, 2, 3],
-    // [`fontSize`, 60.0, Action.fontSize, 10, 440.0],
+    [`fontSize`, 60.0, Action.fontSize, 10, 440.0],
     // [`TexOffset`, 0.25, Action.TexOffset, 0.0, 0.58],
 
     // [`vertexOffsetX`, 0, Action.vertexOffsetX, -1, 1.0],
@@ -335,12 +331,13 @@ DataPanel.init([
     // [`faceColor.r`, 1.0, Action.faceColorR, 0.0, 1.0],
     // [`faceColor.g`, 1.0, Action.faceColorG, 0.0, 1.0],
     // [`faceColor.b`, 1.0, Action.faceColorB, 0.0, 1.0],
+    [`edgeControl`, 0.5, Action.edgeControl, 0.0, 1.0],
 
-    [`outlineWidth`, 0.0, Action.outlineWidth, 0.0, 28.0],
+    [`outlineWidth`, 0.0, Action.outlineWidth, 0.0, 32.0],
     [`outlineSoftness`, 0, Action.outlineSoftness, 0, 1.0],
 
     // [`weightNormal`, 0, Action.weightNormal, -2, 2.0],
-    [`weightBold`, 0.0, Action.weightBold, -2, 2],
+    [`weightBold`, 0.0, Action.weightBold, -3, 3],
 
     // [`lineSize`, 0.0, Action.lineSize, 0.0, 1.0],
     // [`lineOffset`, 0.0, Action.lineOffset, 0.0, 1.0],

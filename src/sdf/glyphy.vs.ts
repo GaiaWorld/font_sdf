@@ -11,9 +11,10 @@ ProgramManager.getInstance().addShader("glyphy.vs", `
     // glyph_vertex_t: x, y; g16hi, g16lo; 
     
     attribute vec4 a_glyph_vertex;
+    
+    // uniform vec4 sizeOffset;
 
     varying vec4 v_glyph;
-    varying float control;
     varying vec2 lp;
 
     // "A" 中 的 v = (28.0, 32.0)
@@ -39,9 +40,17 @@ ProgramManager.getInstance().addShader("glyphy.vs", `
 
     void main() {
         v_glyph = glyph_vertex_transcode(a_glyph_vertex.zw);
-        control = uWorld[2][2];
         
-        gl_Position = uProj * uView * uWorld * vec4(a_glyph_vertex.xy, 0.0, 1.0);
+        mat4 world = uWorld;
+        // world = mat4(
+        //     vec4(sizeOffset.x, 0., 0., 0.),
+        //     vec4(0., sizeOffset.x, 0., 0.),
+        //     vec4(0., 0., sizeOffset.x, 0.),
+        //     vec4(sizeOffset.zw, 0., 1.),
+        // );
+        gl_Position = uProj * uView * world * vec4(a_glyph_vertex.xy, 0.0, 1.0);
         lp = a_glyph_vertex.xy;
     }
 `);
+
+export const VS_KEY = "glyphy.vs";

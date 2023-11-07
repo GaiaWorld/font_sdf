@@ -11,6 +11,8 @@ import { Camera } from "./camera";
 import { Material } from "./material";
 import { Geometry, Mesh } from "./mesh";
 import { Program, ProgramManager } from "./program";
+import { VS_KEY } from "./glyphy.vs";
+import { FS_KEY } from "./glyphy.fs";
 
 export class Glyph {
     char: string;
@@ -49,7 +51,7 @@ export class Glyph {
         g: Geometry,
         tex_data: TexData,
     ) {
-        let program = ProgramManager.getInstance().getProgram("glyphy.vs", "glyphy.fs");
+        let program = ProgramManager.getInstance().getProgram(VS_KEY, FS_KEY);
 
         let data_texture = createDataTexture(gl, tex_data.data_tex);
         let index_texture = createIndexTexture(gl, tex_data.grid_w, tex_data.grid_h, tex_data.index_tex);
@@ -157,7 +159,7 @@ export class GlyphyMaterial extends Material {
         this.uGradientStartEnd = [1.0, 0.0, 0.0, 1.0];
         // this.uGradientColors = mat4.create();
         this.outline = [0., 0., 0., 0.];
-        this.weightAndOffset = [0., 0., 0., 0.];
+        this.weightAndOffset = [0., 0., 0.5, 0.];
 
         this.uWorld = mat4.create();
         mat4.identity(this.uWorld);

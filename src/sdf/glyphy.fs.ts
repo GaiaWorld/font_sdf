@@ -464,7 +464,6 @@ float antialias(float d) {
 	return clamp(r, 0.0, 1.0);
 }
 
-varying float control;
 varying vec2 lp;
 
 uniform vec4 u_gradientStarteEnd;
@@ -531,29 +530,28 @@ void main() {
 	float outlineSofeness 	= u_weightAndOffset.w;
 	float outlineWidth 		= u_outline.w * distancePerPixel;
 	vec4 outlineColor 		= vec4(u_outline.xyz, 1.);
-	float ed = (1.0 - smoothstep(0., outlineWidth, abs(sdist))) * step(-0.1, sdist); // * step(sdist, 0.);
-	float alphaED = min(ed, 1.0 - alpha) * step(0.001, ed);
-	vec4 finalColor = mix(faceColor, outlineColor, smoothstep(0.0, outlineSofeness, alphaED));
+	float outline = (1.0 - smoothstep(0., outlineWidth, abs(sdist))) * step(-0.1, sdist);
+	float alphaOutline = min(outline, 1.0 - alpha) * step(0.001, outline);
+	vec4 finalColor = mix(faceColor, outlineColor, smoothstep(0.0, outlineSofeness, alphaOutline));
 	// finalColor.a = antialias(finalColor.a);
 
 	// gl_FragColor = finalColor;
 
 	// gl_FragColor = vec4(sdist * 0.05 + 0.4);
 
-	float top = step(128., v_glyph.y);
-	float right = step(control, v_glyph.x);
+	float edgeCotrol = u_weightAndOffset.z;
+	float right = step(edgeCotrol * 1.2 - 0.1, lp.x);
 	
+	float d = abs(fwidth(lp.x));
 	gl_FragColor = mix(
-		mix(
-			finalColor,
-			vec4(floor((sdist * 0.02 + 0.4) * 10.) / 10.),
-			// vec4(sdist * 0.05),
-			right
+		finalColor,
+		vec4(
+			floor(
+				((sdist + u_info.y * d) / u_info.z * 0.5 + 0.5) * 16.
+			) / 16.
 		),
-		vec4(0.),
-		top
+		right
 	);
-	// gl_FragColor = vec4(abs(fwidth(lp.x)) * 100., abs(fwidth(lp.y)) * 100., 0., 1.);
 
 	// 画 网格
 
@@ -567,3 +565,5 @@ void main() {
 	// }
 }
 `);
+
+export const FS_KEY = "glyphy.fs";

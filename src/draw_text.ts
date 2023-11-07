@@ -267,7 +267,7 @@ export class DrawText {
             let { svg_paths, svg_endpoints, arcs, endpoints } = get_char_arc(gi, font, this.char)
 
             let verties = add_glyph_vertices(gi);
-            debugger;
+
             console.log(`verties = `, verties);
 
             let tex_data = arcs.tex_data;
@@ -279,13 +279,11 @@ export class DrawText {
             if (!g) {
                 throw new Error(`g is null`);
             }
-            debugger;
             let scale = this.char_size * window.devicePixelRatio;
-            let edgescale = this.edge_size;
             let m = mat4.create();
             mat4.identity(m);
             mat4.translate(m, m, [25.0, 120.0, 0.0]);
-            mat4.scale(m, m, [scale, scale, edgescale]);
+            mat4.scale(m, m, [scale, scale, 1.]);
             g.mesh?.material?.setWorldMatrix(m);
             (<any>window).material = g.mesh?.material;
 
